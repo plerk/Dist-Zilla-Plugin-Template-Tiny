@@ -91,8 +91,9 @@ so to specify foo = 1 and bar = 'hello world' you would include this in your dis
 =cut
 
 has var => (
-  is  => 'ro',
-  isa => 'ArrayRef[Str]',
+  is      => 'ro',
+  isa     => 'ArrayRef[Str]',
+  default => sub { [] },
 );
 
 =head2 replace
