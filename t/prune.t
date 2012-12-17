@@ -41,4 +41,4 @@ is $Foo::VARS{'dzil_name'   }, 'DZT-Sample',  'dzil_name    = DZT-Sample';
 is $Foo::VARS{'foo'         }, 10,            'foo          = 10';
 is $Foo::VARS{'bar'         }, 'hello world', 'bar          = hello world';
 
-is join(":", map { $_->name } sort @{ $tzil->files }), 'lib/Foo.pm:lib/DZT.pm:dist.ini', 'original template pruned';
+is join(":", sort map { $_->name } @{ $tzil->files }), join(':', sort qw( lib/Foo.pm lib/DZT.pm dist.ini )), 'original template pruned';
