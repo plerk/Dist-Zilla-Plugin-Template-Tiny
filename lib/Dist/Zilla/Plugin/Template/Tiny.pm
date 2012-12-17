@@ -4,6 +4,7 @@ use Moose;
 use v5.10;
 use Template::Tiny;
 use Dist::Zilla::File::InMemory;
+use List::Util qw(first);
 
 # ABSTRACT: process template files in your dist using Template::Tiny
 # VERSION
@@ -22,6 +23,7 @@ be queried for things like the version or name of the distribution.
 =cut
 
 with 'Dist::Zilla::Role::FileGatherer';
+with 'Dist::Zilla::Role::FileMunger';
 with 'Dist::Zilla::Role::FileInjector';
 
 use namespace::autoclean;
@@ -54,7 +56,7 @@ this is
  [Template::Tiny]
  output_regex = /\.tt$//
 
-which generates a C<Foo.pm> for each C<foo.pm.tt>.
+which generates a C<Foo.pm> for each C<Foo.pm.tt>.
 
 =cut
 
@@ -92,6 +94,32 @@ has var => (
   isa => 'ArrayRef[Str]',
 );
 
+=head2 replace
+
+If set to a true value, existing files in the source tree will be replaced, if necessary.
+
+=cut
+
+has replace => (
+  is      => 'ro',
+  isa     => 'Int',
+  default => 0,
+);
+
+has _munge_list => (
+  is      => 'ro',
+  isa     => 'ArrayRef[Dist::Zilla::Role::File]',
+  default => sub { [] },
+);
+
+has _tt => (
+  is => 'ro',
+  isa => 'Template::Tiny',
+  default => sub {
+    Template::Tiny->new( TRIM => shift->trim );
+  },
+);
+
 =head1 METHODS
 
 =head2 $plugin-E<gt>gather_files( $arg )
@@ -103,55 +131,86 @@ This method processes the TT files and injects the results into your dist.
 sub gather_files
 {
   my($self, $arg) = @_;
-  
-  my $tt = Template::Tiny->new( TRIM => $self->trim );
 
   my $list =
     defined $self->finder 
     ? $self->zilla->find_files($self->finder)
     : [ grep { $_->name =~ /\.tt$/ } @{ $self->zilla->files } ];
 
-  my $vars = $self->_vars;
-    
   foreach my $template (@$list)
   {
- 
-    my $file = Dist::Zilla::File::InMemory->new(
-      name    => do {
-        my $filename = $template->name;
-        eval q{ $filename =~ s} . $self->output_regex;
-        $filename;
-      },
-      content => do {
-        my $output = '';
-        my $input = $template->content;
-        $tt->process(\$input, $vars, \$output);
-        $output;
-      },
-    );
-    
-    $self->add_file($file);
+    my $filename = do {
+      my $filename = $template->name;
+      eval q{ $filename =~ s} . $self->output_regex;
+      $self->log("processing " . $template->name . " => $filename");
+      $filename;
+    };
+    my $exists = first { $_->name eq $filename } @{ $self->zilla->files };
+    if($self->replace && $exists)
+    {
+      push @{ $self->_munge_list }, [ $template, $exists ];
+    }
+    else
+    {
+      my $file = Dist::Zilla::File::InMemory->new(
+        name    => $filename,
+        content => do {
+          my $output = '';
+          my $input = $template->content;
+          $self->_tt->process(\$input, $self->_vars, \$output);
+          $output;
+        },
+      );
+      $self->add_file($file);
+    }
   }
 }
 
 sub _vars
 {
   my($self) = @_;
-  my %vars = ( dzil => $self->zilla );
-  foreach my $var (@{ $self->var })
+  
+  unless(defined $self->{_vars})
   {
-    if($var =~ /^(.*?)=(.*)$/)
+  
+    my %vars = ( dzil => $self->zilla );
+    foreach my $var (@{ $self->var })
     {
-      my $name = $1;
-      my $value = $2;
-      for($name,$value) {
-        s/^\s+//;
-        s/\s+$//;
+      if($var =~ /^(.*?)=(.*)$/)
+      {
+        my $name = $1;
+        my $value = $2;
+        for($name,$value) {
+          s/^\s+//;
+          s/\s+$//;
+        }
+        $vars{$name} = $value;
       }
-      $vars{$name} = $value;
     }
+    
+    $self->{_vars} = \%vars;
   }
-  return \%vars;
+  
+  return $self->{_vars};
+}
+
+=head2 $plugin->munge_files
+
+This method is used to munge files that need to be replaced instead of injected.
+
+=cut
+
+sub munge_files
+{
+  my($self) = @_;
+  foreach my $item (@{ $self->_munge_list })
+  {
+    my($template,$file) = @$item;
+    my $output = '';
+    my $input = $template->content;
+    $self->_tt->process(\$input, $self->_vars, \$output);
+    $file->content($output);
+  }
 }
 
 =head2 $plugin->mvp_multivalue_args
