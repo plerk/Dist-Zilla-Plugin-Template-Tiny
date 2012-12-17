@@ -7,3 +7,10 @@ pod_spelling_system:
     - .tt
     - filenames
     - munge
+    - JavaScript
+    - ShareDir
+    - plugins
+    - version.js.tt
+    - .js.tt
+    - version.js
+    - .js

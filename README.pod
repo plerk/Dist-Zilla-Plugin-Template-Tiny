@@ -80,6 +80,54 @@ set.
 
 Returns list of attributes that can be specified multiple times.
 
+=head1 EXAMPLES
+
+Why would you even need templates that get processed when you build your distribution
+anyway?  There are many useful L<Dist::Zilla> plugins that provide mechanisms for
+manipulating POD and Perl after all.  I work on Perl distributions that are web apps
+that include CSS and JavaScript, and I needed a way to get the distribution version into
+the JavaScript.  This seemed to be the clearest and most simple way to go about this.
+
+First of all, I have a share directory called public that gets installed via 
+L<[ShareDir]|Dist::Zilla::Plugin::ShareDir>.
+
+ [ShareDir]
+ dir = public
+
+Next I use this plugin to process .js.tt files in the appropriate directory, so that
+.js files are produced.
+
+ [FileFinder::ByName / JavaScriptTTFiles]
+ dir = public/js
+ file = *.js.tt
+ [Template::Tiny]
+ finder = JavaScriptTTFiles
+ replace = 1
+ prune = 1
+
+Finally, I create a version.js.tt file
+
+ if(PlugAuth === undefined) var PlugAuth = {};
+ if(PlugAuth === undefined) PlugAuth.UI = {};
+ 
+ PlugAuth.UI.Name = 'PlugAuth WebUI';
+ PlugAuth.UI.VERSION = '[% dzil.version %]';
+
+which gets processed and used when the distribution is built and later installed.  I also
+create a version.js file in the same directory so that I can use the distribution without
+having to build it.
+
+ if(PlugAuth === undefined) var PlugAuth = {};
+ if(PlugAuth === undefined) PlugAuth.UI = {};
+ 
+ PlugAuth.UI.Name = 'PlugAuth WebUI';
+ PlugAuth.UI.VERSION = 'dev';
+
+Now when I run it out of the checked out distribution I get C<dev> reported as the version
+and the actual version reported when I run from an installed copy.
+
+There are probably other use cases and ways to get yourself into trouble.
+
 =head1 AUTHOR
 
 Graham Ollis <plicease@cpan.org>
