@@ -57,17 +57,26 @@ so to specify foo = 1 and bar = 'hello world' you would include this in your dis
 
 If set to a true value, existing files in the source tree will be replaced, if necessary.
 
+=head2 prune
+
+If set to a true value, the original template files will NOT be included in the built distribution.
+
 =head1 METHODS
 
 =head2 $plugin-E<gt>gather_files( $arg )
 
 This method processes the TT files and injects the results into your dist.
 
-=head2 $plugin->munge_files
+=head2 $plugin-E<gt>munge_files
 
 This method is used to munge files that need to be replaced instead of injected.
 
-=head2 $plugin->mvp_multivalue_args
+=head2 $plugin-E<gt>prune_files
+
+This method is used to prune the original templates if the C<prune> attribute is
+set.
+
+=head2 $plugin-E<gt>mvp_multivalue_args
 
 Returns list of attributes that can be specified multiple times.
 

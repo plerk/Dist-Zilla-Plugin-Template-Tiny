@@ -25,6 +25,7 @@ be queried for things like the version or name of the distribution.
 with 'Dist::Zilla::Role::FileGatherer';
 with 'Dist::Zilla::Role::FileMunger';
 with 'Dist::Zilla::Role::FileInjector';
+with 'Dist::Zilla::Role::FilePruner';
 
 use namespace::autoclean;
 
@@ -102,7 +103,7 @@ If set to a true value, existing files in the source tree will be replaced, if n
 
 has replace => (
   is      => 'ro',
-  isa     => 'Int',
+  isa     => 'Bool',
   default => 0,
 );
 
@@ -113,11 +114,30 @@ has _munge_list => (
 );
 
 has _tt => (
-  is => 'ro',
-  isa => 'Template::Tiny',
+  is      => 'ro',
+  isa     => 'Template::Tiny',
+  lazy    => 1,
   default => sub {
     Template::Tiny->new( TRIM => shift->trim );
   },
+);
+
+=head2 prune
+
+If set to a true value, the original template files will NOT be included in the built distribution.
+
+=cut
+
+has prune => (
+  is      => 'ro',
+  isa     => 'Bool',
+  default => 0,
+);
+
+has _prune_list => (
+  is      => 'ro',
+  isa     => 'ArrayRef[Dist::Zilla::Role::File]',
+  default => sub { [] },
 );
 
 =head1 METHODS
@@ -162,6 +182,7 @@ sub gather_files
         },
       );
       $self->add_file($file);
+      push @{ $self->_prune_list }, $template if $self->prune;
     }
   }
 }
@@ -194,7 +215,7 @@ sub _vars
   return $self->{_vars};
 }
 
-=head2 $plugin->munge_files
+=head2 $plugin-E<gt>munge_files
 
 This method is used to munge files that need to be replaced instead of injected.
 
@@ -210,10 +231,27 @@ sub munge_files
     my $input = $template->content;
     $self->_tt->process(\$input, $self->_vars, \$output);
     $file->content($output);
+    push @{ $self->_prune_list }, $template if $self->prune;
   }
 }
 
-=head2 $plugin->mvp_multivalue_args
+=head2 $plugin-E<gt>prune_files
+
+This method is used to prune the original templates if the C<prune> attribute is
+set.
+
+=cut
+
+sub prune_files
+{
+  my($self) = @_;
+  foreach my $template (@{ $self->_prune_list })
+  {
+    $self->zilla->prune_file($template);
+  }
+}
+
+=head2 $plugin-E<gt>mvp_multivalue_args
 
 Returns list of attributes that can be specified multiple times.
 
