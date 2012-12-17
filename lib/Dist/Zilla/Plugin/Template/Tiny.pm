@@ -232,8 +232,8 @@ sub munge_files
     my $input = $template->content;
     $self->_tt->process(\$input, $self->_vars, \$output);
     $file->content($output);
-    push @{ $self->_prune_list }, $template if $self->prune;
   }
+  $self->prune_files;
 }
 
 =head2 $plugin-E<gt>prune_files
@@ -248,8 +248,11 @@ sub prune_files
   my($self) = @_;
   foreach my $template (@{ $self->_prune_list })
   {
+    $self->log("pruning " . $template->name);
     $self->zilla->prune_file($template);
   }
+  
+  @{ $self->_prune_list } = ();
 }
 
 =head2 $plugin-E<gt>mvp_multivalue_args
