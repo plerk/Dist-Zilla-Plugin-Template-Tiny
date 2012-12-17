@@ -1,1 +1,8 @@
---- {}
+---
+pod_spelling_system:
+  stopwords:
+    - dist.ini
+    - FileFinder
+    - TT
+    - .tt
+    - filenames
