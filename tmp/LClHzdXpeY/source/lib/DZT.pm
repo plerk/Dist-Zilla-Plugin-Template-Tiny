@@ -1,3 +1,0 @@
-package DZT;
-
-1;
