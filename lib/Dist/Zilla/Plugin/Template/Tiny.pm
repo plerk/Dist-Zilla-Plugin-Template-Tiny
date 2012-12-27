@@ -183,8 +183,8 @@ sub gather_files
         },
       );
       $self->add_file($file);
-      push @{ $self->_prune_list }, $template if $self->prune;
     }
+    push @{ $self->_prune_list }, $template if $self->prune;
   }
 }
 

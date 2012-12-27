@@ -1,6 +1,7 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+  - prune and replace play nice together
 
 0.02      2012-12-18 21:56:29 America/New_York
   - remove tmp directory from dist
