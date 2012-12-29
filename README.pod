@@ -108,7 +108,7 @@ Next I use this plugin to process .js.tt files in the appropriate directory, so 
 Finally, I create a version.js.tt file
 
  if(PlugAuth === undefined) var PlugAuth = {};
- if(PlugAuth === undefined) PlugAuth.UI = {};
+ if(PlugAuth.UI === undefined) PlugAuth.UI = {};
  
  PlugAuth.UI.Name = 'PlugAuth WebUI';
  PlugAuth.UI.VERSION = '[% dzil.version %]';
