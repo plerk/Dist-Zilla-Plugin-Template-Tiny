@@ -14,3 +14,5 @@ pod_spelling_system:
     - .js.tt
     - version.js
     - .js
+    - js
+    - tt
