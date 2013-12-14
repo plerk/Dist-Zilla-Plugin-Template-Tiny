@@ -1,7 +1,6 @@
 package Dist::Zilla::Plugin::Template::Tiny;
 
 use Moose;
-use v5.10;
 use Template::Tiny;
 use Dist::Zilla::File::InMemory;
 use List::Util qw(first);
