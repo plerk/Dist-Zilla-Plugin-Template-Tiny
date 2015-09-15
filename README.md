@@ -85,7 +85,7 @@ that include CSS and JavaScript, and I needed a way to get the distribution vers
 the JavaScript.  This seemed to be the clearest and most simple way to go about this.
 
 First of all, I have a share directory called public that gets installed via 
-[[ShareDir]](https://metacpan.org/pod/Dist::Zilla::Plugin::ShareDir).
+[\[ShareDir\]](https://metacpan.org/pod/Dist::Zilla::Plugin::ShareDir).
 
     [ShareDir]
     dir = public
