@@ -57,25 +57,6 @@ If set to a true value, existing files in the source tree will be replaced, if n
 
 If set to a true value, the original template files will NOT be included in the built distribution.
 
-# METHODS
-
-## $plugin->gather\_files( $arg )
-
-This method processes the TT files and injects the results into your dist.
-
-## $plugin->munge\_files
-
-This method is used to munge files that need to be replaced instead of injected.
-
-## $plugin->prune\_files
-
-This method is used to prune the original templates if the `prune` attribute is
-set.
-
-## $plugin->mvp\_multivalue\_args
-
-Returns list of attributes that can be specified multiple times.
-
 # EXAMPLES
 
 Why would you even need templates that get processed when you build your distribution
@@ -126,7 +107,7 @@ There are probably other use cases and ways to get yourself into trouble.
 
 # AUTHOR
 
-Graham Ollis <plicease@cpan.org>
+Graham Ollis &lt;plicease@cpan.org>
 
 # COPYRIGHT AND LICENSE
 

@@ -23,7 +23,6 @@ be queried for things like the version or name of the distribution.
 
 with 'Dist::Zilla::Role::FileGatherer';
 with 'Dist::Zilla::Role::FileMunger';
-with 'Dist::Zilla::Role::FileInjector';
 with 'Dist::Zilla::Role::FilePruner';
 
 use namespace::autoclean;
@@ -140,14 +139,6 @@ has _prune_list => (
   default => sub { [] },
 );
 
-=head1 METHODS
-
-=head2 $plugin-E<gt>gather_files( $arg )
-
-This method processes the TT files and injects the results into your dist.
-
-=cut
-
 sub gather_files
 {
   my($self, $arg) = @_;
@@ -215,12 +206,6 @@ sub _vars
   return $self->{_vars};
 }
 
-=head2 $plugin-E<gt>munge_files
-
-This method is used to munge files that need to be replaced instead of injected.
-
-=cut
-
 sub munge_files
 {
   my($self) = @_;
@@ -235,13 +220,6 @@ sub munge_files
   $self->prune_files;
 }
 
-=head2 $plugin-E<gt>prune_files
-
-This method is used to prune the original templates if the C<prune> attribute is
-set.
-
-=cut
-
 sub prune_files
 {
   my($self) = @_;
@@ -253,12 +231,6 @@ sub prune_files
   
   @{ $self->_prune_list } = ();
 }
-
-=head2 $plugin-E<gt>mvp_multivalue_args
-
-Returns list of attributes that can be specified multiple times.
-
-=cut
 
 sub mvp_multivalue_args { qw(var) }
 
